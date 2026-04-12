@@ -1,0 +1,24 @@
+# Node dependencies
+node_modules/
+npm-debug.log*
+yarn-error.log
+
+# Environment files - NEVER push these (contains DB passwords)
+backend/.env
+.env
+.env.*
+
+# Build output
+frontend/dist/
+frontend/build/
+
+# Uploaded files
+backend/uploads/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE/Editor
+.vscode/
+.idea/
