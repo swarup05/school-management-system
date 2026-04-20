@@ -3,7 +3,7 @@ import API from '../api/api';
 import { BookOpen, Upload } from 'lucide-react';
 
 const TeacherHomework = () => {
-    const [className, setClassName] = useState('1st Standard');
+    const [className, setClassName] = useState('Playgroup');
     const [homework, setHomework] = useState({ subject: '', description: '', file: null });
 
     const handleHomeworkSubmit = async (e) => {

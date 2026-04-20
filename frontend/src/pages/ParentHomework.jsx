@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import API from '../api/api';
-import { BookOpen, FileText, Calendar } from 'lucide-react';
+import { BookOpen, FileText, Calendar, Users } from 'lucide-react';
 
 const ParentHomework = () => {
-    const [homework, setHomework] = useState([]);
+    const [children, setChildren] = useState([]);
+    const [selectedIdx, setSelectedIdx] = useState(0);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -12,8 +13,8 @@ const ParentHomework = () => {
 
     const fetchHomework = async () => {
         try {
-            const { data } = await API.get('/parent/dashboard');
-            setHomework(data.homework || []);
+            const res = await API.get('/parent/dashboard');
+            setChildren(res.data.children || []);
             setLoading(false);
         } catch (err) {
             console.error('Error fetching homework:', err);
@@ -22,6 +23,15 @@ const ParentHomework = () => {
     };
 
     if (loading) return <div style={{ padding: '20px' }}>Loading Homework...</div>;
+    if (children.length === 0) return (
+        <div className="glass-card" style={{ textAlign: 'center', padding: '60px' }}>
+            <BookOpen size={48} style={{ color: '#cbd5e1', marginBottom: '15px' }} />
+            <h3 style={{ color: 'var(--text-secondary)' }}>No student records found.</h3>
+        </div>
+    );
+
+    const active = children[selectedIdx];
+    const { homework, student } = active || {};
 
     return (
         <div style={{ maxWidth: '900px', margin: '0 auto' }}>
@@ -29,11 +39,38 @@ const ParentHomework = () => {
                 <h1 style={{ fontWeight: 800, color: 'var(--primary)', display: 'flex', alignItems: 'center', gap: '15px' }}>
                     <BookOpen size={32} /> Homework & Assignments
                 </h1>
-                <p style={{ color: 'var(--text-secondary)' }}>Review and download current assignments for your child's class.</p>
+                <p style={{ color: 'var(--text-secondary)' }}>Review assignments for your child's class.</p>
             </header>
 
+            {/* Child Selector */}
+            {children.length > 1 && (
+                <div style={{ display: 'flex', gap: '10px', marginBottom: '30px', flexWrap: 'wrap' }}>
+                    {children.map((c, idx) => (
+                        <button
+                            key={c.student?.id || idx}
+                            onClick={() => setSelectedIdx(idx)}
+                            style={{
+                                padding: '10px 20px',
+                                borderRadius: '25px',
+                                border: '2px solid var(--primary)',
+                                background: selectedIdx === idx ? 'var(--primary)' : 'white',
+                                color: selectedIdx === idx ? 'white' : 'var(--primary)',
+                                fontWeight: 700,
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '8px'
+                            }}
+                        >
+                            <Users size={16} />
+                            {c.student?.name}
+                        </button>
+                    ))}
+                </div>
+            )}
+
             <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '25px' }}>
-                {homework.map(hw => (
+                {(homework || []).map(hw => (
                     <div key={hw.id} className="glass-card" style={{ maxWidth: 'none', margin: 0, padding: '25px', borderLeft: '6px solid #ffa000' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '15px' }}>
                             <div>
@@ -68,11 +105,11 @@ const ParentHomework = () => {
                     </div>
                 ))}
 
-                {homework.length === 0 && (
+                {(homework || []).length === 0 && (
                     <div className="glass-card" style={{ textAlign: 'center', padding: '60px' }}>
                         <BookOpen size={48} style={{ color: '#cbd5e1', marginBottom: '15px' }} />
                         <h3 style={{ color: 'var(--text-secondary)' }}>No Homework Assigned</h3>
-                        <p style={{ color: '#94a3b8' }}>Perfect! All assignments are currently up to date.</p>
+                        <p style={{ color: '#94a3b8' }}>Perfect! {student?.name} is all caught up.</p>
                     </div>
                 )}
             </div>

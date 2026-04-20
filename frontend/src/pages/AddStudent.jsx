@@ -64,8 +64,8 @@ const AddStudent = () => {
                     </select>
                 </div>
                 <div>
-                    <label style={{ fontSize: '0.85rem' }}>Student Email (Unique ID)</label>
-                    <input type="email" className="input-field" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} required />
+                    <label style={{ fontSize: '0.85rem' }}>Parent Email (Login ID)</label>
+                    <input type="email" className="input-field" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} required placeholder="e.g. parent@example.com" />
                 </div>
 
                 <div style={{ gridColumn: 'span 2' }}>

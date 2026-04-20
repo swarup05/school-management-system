@@ -20,18 +20,34 @@ exports.addTeacher = async (req, res) => {
 exports.addStudent = async (req, res) => {
     const { name, email, password, className, rollNo, parentName, parentPhone } = req.body;
     try {
-        const hashedPassword = await bcrypt.hash(password, 10);
-        
-        // 1. Create Parent User (Simple approach: one parent user per student for this demo)
-        const parentEmail = `p_${email}`;
-        const [parentUserResult] = await db.query('INSERT INTO users (email, password, role) VALUES (?, ?, ?)', [parentEmail, hashedPassword, 'parent']);
-        const parentId = parentUserResult.insertId;
-        await db.query('INSERT INTO parents (id, name, phone, email) VALUES (?, ?, ?, ?)', [parentId, parentName, parentPhone, parentEmail]);
+        let parentId;
 
-        // 2. Create Student User (Wait, the request doesn't say student needs a login, but they might need one eventually. Let's stick to student data + parent login)
-        // Actually, the parent is the one who logs in.
-        await db.query('INSERT INTO students (name, class, roll_no, parent_id) VALUES (?, ?, ?, ?)', [name, className, rollNo, parentId]);
-        
+        // 1. Check if a parent with the same phone OR email already exists — reuse their account
+        const [existingParent] = await db.query('SELECT id FROM parents WHERE phone = ? OR email = ?', [parentPhone, email]);
+
+        if (existingParent.length > 0) {
+            // Reuse existing parent account — same parent, second child (sibling)
+            parentId = existingParent[0].id;
+        } else {
+            // Create a new parent user account using the provided email directly
+            const hashedPassword = await bcrypt.hash(password, 10);
+            const [parentUserResult] = await db.query(
+                'INSERT INTO users (email, password, role) VALUES (?, ?, ?)',
+                [email, hashedPassword, 'parent']
+            );
+            parentId = parentUserResult.insertId;
+            await db.query(
+                'INSERT INTO parents (id, name, phone, email) VALUES (?, ?, ?, ?)',
+                [parentId, parentName, parentPhone, email]
+            );
+        }
+
+        // 2. Register the student linked to this parent
+        await db.query(
+            'INSERT INTO students (name, email, class, roll_no, parent_id) VALUES (?, ?, ?, ?, ?)',
+            [name, email, className, rollNo, parentId]
+        );
+
         res.status(201).json({ message: 'Student and Parent added successfully' });
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -53,7 +69,7 @@ exports.sendNotice = async (req, res) => {
 exports.getUsers = async (req, res) => {
     try {
         const [teachers] = await db.query('SELECT u.id, t.name, u.email, t.subject FROM users u JOIN teachers t ON u.id = t.id');
-        const [students] = await db.query('SELECT s.id, s.name, s.class, s.roll_no, p.name as parent_name FROM students s LEFT JOIN parents p ON s.parent_id = p.id');
+        const [students] = await db.query('SELECT s.id, s.name, s.email, s.class, s.roll_no, p.name as parent_name, p.phone as parent_phone FROM students s LEFT JOIN parents p ON s.parent_id = p.id');
         
         res.json({
             teachers,

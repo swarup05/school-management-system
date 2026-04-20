@@ -102,7 +102,10 @@ const AdminDashboard = () => {
                                 <tr style={{ borderBottom: '2px solid #f1f5f9', textAlign: 'left' }}>
                                     <th style={{ padding: '15px' }}>Roll No</th>
                                     <th style={{ padding: '15px' }}>Student Name</th>
+                                    <th style={{ padding: '15px' }}>Class</th>
+                                    <th style={{ padding: '15px' }}>Parent Email</th>
                                     <th style={{ padding: '15px' }}>Parent Name</th>
+                                    <th style={{ padding: '15px' }}>Parent Contact</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -110,7 +113,14 @@ const AdminDashboard = () => {
                                     <tr key={s.id || idx} style={{ borderBottom: '1px solid #f1f5f9' }}>
                                         <td style={{ padding: '15px' }}>{s.roll_no}</td>
                                         <td style={{ padding: '15px', fontWeight: 600 }}>{s.name}</td>
+                                        <td style={{ padding: '15px' }}>
+                                            <span style={{ padding: '4px 12px', background: '#ede9fe', color: '#5b21b6', borderRadius: '15px', fontSize: '0.8rem', fontWeight: 600 }}>
+                                                {s.class}
+                                            </span>
+                                        </td>
+                                        <td style={{ padding: '15px', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{s.email}</td>
                                         <td style={{ padding: '15px', color: 'var(--text-secondary)' }}>{s.parent_name}</td>
+                                        <td style={{ padding: '15px', color: 'var(--text-secondary)' }}>{s.parent_phone}</td>
                                     </tr>
                                 ))}
                             </tbody>

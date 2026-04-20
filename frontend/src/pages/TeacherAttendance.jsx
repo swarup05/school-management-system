@@ -3,7 +3,7 @@ import API from '../api/api';
 import { ClipboardList, Download } from 'lucide-react';
 
 const TeacherAttendance = () => {
-    const [className, setClassName] = useState('1st Standard');
+    const [className, setClassName] = useState('Playgroup');
     const [students, setStudents] = useState([]);
     const [attendance, setAttendance] = useState({});
     const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
